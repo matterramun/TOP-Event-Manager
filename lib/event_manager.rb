@@ -11,7 +11,9 @@ end
 #puts contents
 
 lines = File.readlines('event_attendees.csv')
-lines.each do |line|
+lines.each.with_index do |line, index|
+    next if index == 0
     columns = line.split(",")
-    p columns
+    name = columns[2]
+    p name
 end

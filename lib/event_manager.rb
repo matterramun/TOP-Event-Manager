@@ -23,6 +23,8 @@ def legislators_by_zipcode(zipcode)
   end
 end
 
+template_letter = File.read('form_letter.html')
+
 puts 'Event Manager Initialized!'
 
 if File.exist?('event_attendees.csv')

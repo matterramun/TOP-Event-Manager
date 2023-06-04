@@ -1,4 +1,13 @@
 require 'csv'
+require 'google/apis/civicinfo_v2'
+
+civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
+
+def clean_zipcode(zipcode)
+  zipcode.to_s.rjust(5, '0')[0..4]
+end
+
 puts 'Event Manager Initialized!'
 
 if File.exist?('event_attendees.csv')
@@ -8,17 +17,6 @@ else
   exit
 end
 
-# contents = File.read('event_attendees.csv')
-# puts contents
-
-# lines = File.readlines('event_attendees.csv')
-# lines.each.with_index do |line, index|
-#    next if index == 0
-#    columns = line.split(",")
-#    name = columns[2]
-#    p name
-# end
-
 contents = CSV.open(
   'event_attendees.csv', 
   headers: true, 
@@ -26,15 +24,7 @@ contents = CSV.open(
 )
 contents.each do |row|
   name = row[:first_name]
-  zipcode = row[:zipcode]
-
-  if zipcode.nil?
-    zipcode = '00000'
-  elsif zipcode.length > 5
-    zipcode = zipcode.rjust(5,'0')
-  elsif zipcode.length < 5
-    zipcode = zipcode.slice(0..4)
-  end
+  zipcode = clean_zipcode(row[:zipcode])
 
   puts "#{name} #{zipcode}"
 end

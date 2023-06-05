@@ -84,7 +84,7 @@ contents.each do |row|
 
   form_letter = erb_template.result(binding)
 
-  #save_thank_you_letter(id,form_letter)
+  save_thank_you_letter(id,form_letter)
 end
 puts "Best hour(s) to send are... #{mode(hours).join(", ")}"
 puts "Best day(s) to send are... #{mode(weekday).join(", ")}"

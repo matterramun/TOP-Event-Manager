@@ -45,11 +45,6 @@ def clean_phone_num(phone)
   end
 end
 
-def best_hour(datetime)
-
-
-end
-
 def save_thank_you_letter(id,form_letter)
   Dir.mkdir('output') unless Dir.exist?('output')
 

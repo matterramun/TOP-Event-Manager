@@ -6,6 +6,25 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
 end
 
+def mode(array)
+  array.group_by{ |e| e }.group_by{ |k, v| v.size }.max.pop.map{ |e| e.shift }
+end
+
+def legislators_by_zipcode(zip)
+  civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+  civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
+
+  begin
+    civic_info.representative_info_by_address(
+      address: zip,
+      levels: 'country',
+      roles: ['legislatorUpperBody', 'legislatorLowerBody']
+    ).officials
+  rescue
+    'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
+  end
+end
+
 def clean_phone_num(phone)
   bad_phone = ""
   phone = "%f" % phone if phone.include? "+"
@@ -26,19 +45,9 @@ def clean_phone_num(phone)
   end
 end
 
-def legislators_by_zipcode(zip)
-  civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
-  civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
+def best_hour(datetime)
 
-  begin
-    civic_info.representative_info_by_address(
-      address: zip,
-      levels: 'country',
-      roles: ['legislatorUpperBody', 'legislatorLowerBody']
-    ).officials
-  rescue
-    'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
-  end
+
 end
 
 def save_thank_you_letter(id,form_letter)
@@ -61,6 +70,8 @@ contents = CSV.open(
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
+hours = []
+weekday = []
 
 contents.each do |row|
   id = row[0]
@@ -68,8 +79,12 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(zipcode)
   phone = clean_phone_num(row[:homephone])
+  hours << Time.strptime(row[:regdate], "%m/%d/%y %k:%M").hour
+  weekday << Time.strptime(row[:regdate], "%m/%d/%y %k:%M").strftime("%A")
 
   form_letter = erb_template.result(binding)
 
   #save_thank_you_letter(id,form_letter)
 end
+puts "Best hour(s) to send are... #{mode(hours).join(", ")}"
+puts "Best day(s) to send are... #{mode(weekday).join(", ")}"
